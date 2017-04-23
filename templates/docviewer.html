@@ -12,15 +12,18 @@
 </head>
 
 <body>
+    <a href="/"> Back to Search </a>
     <div class="row">
         <div class="col-sm-3">
-            <h1>Original Text</h1> {% for line in data['original_text']['arr'] %}
+            <h1>Original Text</h1>
+            <small><a target="_blank" href="/files/documents/{{data['original_text']['doc_id']}}.nofoot.txt">view raw</a></small> {% for line in data['original_text']['arr'] %}
             <p>{{line}}</p>
             {%endfor%}
         </div>
         {% for redact in data['result_text']%}
         <div class="col-sm-3">
-            <h1> Redacted </h1> {%for line in redact['arr']%}
+            <h1> Redacted </h1>
+            <small><a target="_blank" href="/files/documents/{{redact['doc_id']}}.nofoot.txt">view raw</a></small> {%for line in redact['arr']%}
             <p>{{line}}</p>
             {% endfor %}
         </div>

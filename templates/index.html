@@ -4,7 +4,6 @@
     <title> Redactions API Viewer</title>
     <link rel='stylesheet' type='text/css' href="static/css/fabric.css" />
     <link rel='stylesheet' type='text/css' href="static/css/style.css" />
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link href='http://fonts.googleapis.com/css?family=Lato&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script type="text/javascript" src="static/node_modules/diff/dist/diff.min.js"></script>
@@ -258,7 +257,7 @@
         <div id="search-results-template" class="search-tool-group">
             <h2> Document Results</h2> {% if data['results'] %} {%for res in data['results']%}
             <li>
-                <a href="/view/{{res}}">{{res}}</a> ++ <a href="files/documents/{{res}}.nofoot.txt">view raw</a></li> {%endfor%} {%else%}
+                <a href="/view/{{res}}">{{res}}</a> ++ <a target="_blank" href="files/documents/{{res}}.nofoot.txt">view raw</a></li> {%endfor%} {%else%}
             <div>No documents match your search terms. Try another search.</div>
             {%endif%}
         </div>

@@ -123,7 +123,7 @@ def getText(doc_id):
     text = f.readlines()
   text_arr = text
   text_blob = " ".join(text)
-  return {"arr": text_arr, "blob": text_blob}
+  return {"arr": text_arr, "blob": text_blob, "doc_id": doc_id}
 
 
 if __name__ == "__main__":
