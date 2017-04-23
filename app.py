@@ -1,17 +1,30 @@
-from flask import Flask, render_template,request
+from flask import Flask, render_template,request,send_from_directory
 import json
 app = Flask(__name__)
 
+@app.route('/files/<path:path>', methods=["GET"])
+def send_files(path):
+  # files/documents/{{doc_id}}.nofoot.txt
+  return send_from_directory('data', path)
+
 @app.route('/', methods=["GET", "POST"])
 def hello_world():
-    start = 1801
-    end = 1803
-    countries_data=open('countries.json').read()
-    years_data=open('years.json').read()
+    # default
+    start = 1805
+    end = 1864
+    countries_data=open('data/doc_filters/countries.json').read()
+    years_data=open('data/doc_filters/years.json').read()
 
     countrySel = ""
     countries = json.loads(countries_data)
     years = json.loads(years_data)
+
+    years_count = {}
+
+    for year,docs in years.iteritems():
+        years_count[year] = len(docs)
+
+    print years_count
 
     countryList = countries.keys()
     countryDocs = set([])
@@ -42,8 +55,6 @@ def hello_world():
 
       print "years so far {}".format(years_needed)
 
-
-
       if countrySelected == 'all':
         results = set(countries)
         # country_docs =
@@ -68,12 +79,52 @@ def hello_world():
       "countrySelected": countrySel,
       "results": list(results),
       "end-year": int(end),
-      "start-year": int(start)
+      "start-year": int(start),
+      "years_count": years_count
     }
     # print(data['taiwan'])
     return render_template("index.html", data=data)
 
-# @app.route('/search/<input>')
+@app.route('/view/<doc_id>', methods=["GET", "POST"])
+def view(doc_id):
+  doc_id = str(doc_id)
+  redact=open('data/doc_filters/redactionToSource.json').read()
+  source=open('data/doc_filters/sourceToRedaction.json').read()
+  redactSource = json.loads(redact)
+  sourceRedact = json.loads(redact)
+
+  if doc_id in redactSource.keys():
+    results = redactSource[doc_id]
+
+  if doc_id in sourceRedact.keys():
+    results = sourceRedact[doc_id]
+
+  results = list(set(results))
+  result_text  = []
+
+  for d_id in results:
+     result_text.append(getText(d_id))
+  original_text = getText(doc_id)
+
+
+  # # for each doc id, read the text file
+  data = {
+  "doc_id": str(doc_id),
+  "result_text": result_text,
+  "original_text": original_text
+  }
+  # print data['result_text']
+  # data = "data"
+  # print getText("205403")
+  return render_template("docviewer.html", data=data)
+
+def getText(doc_id):
+  with open('data/documents/' + doc_id + '.nofoot.txt') as f:
+    text = f.readlines()
+  text_arr = text
+  text_blob = " ".join(text)
+  return {"arr": text_arr, "blob": text_blob}
+
 
 if __name__ == "__main__":
     app.debug = True
