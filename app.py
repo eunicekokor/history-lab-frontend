@@ -91,7 +91,7 @@ def view(doc_id):
   redact=open('data/doc_filters/redactionToSource.json').read()
   source=open('data/doc_filters/sourceToRedaction.json').read()
   redactSource = json.loads(redact)
-  sourceRedact = json.loads(redact)
+  sourceRedact = json.loads(source)
 
   results = []
   if doc_id in redactSource.keys():
@@ -127,6 +127,11 @@ def getText(doc_id):
   text_arr = text
   text_blob = " ".join(text)
   return {"arr": text_arr, "blob": text_blob, "doc_id": doc_id}
+
+def getLocation(doc_id):
+  data = open('data/doc_filters/location.json')
+  jsonData = json.loads(data)
+
 
 
 if __name__ == "__main__":

@@ -23,7 +23,6 @@
 </head>
 
 <body>
-    <div type="text/x-handlebars" id="search-tool-template">
         <h2 class='tools-heading cf' id='tools-heading-search'>
     <div class='tools-heading-icon'></div>
     <div  class='tools-heading-text'> Document Explorer <div class='beta-badge'>beta</div></div>
@@ -242,7 +241,8 @@
                 Search Collections
             </button>
             </form>
-        </form>
+        </div>
+
         {#
         <div type="text/x-handlebars" id="search-results-template">
             <h1>Document Results </h1><span id="search-results-info-matches"></span>
@@ -263,6 +263,10 @@
 <div class="col-sm-3">
 <h1>Document Results </h1>
   {% if data['results'] %} {%for res in data['results']%}
+  {% if loop.index % 2 == 0 %}
+
+  {%endif%}
+  <div class="col-sm-6">
             <div class='search-result-item'>
                 <h2><a href="/view/{{res}}">{{res}}</a></h2>
                 <div class='search-result-item-attributes-group'>
@@ -272,12 +276,15 @@
                 </div>
                 </div>
                 </div>
+                </div>
+                {% if loop.index0  % 3 == 0 %}
+  {%endif%}
                 {%endfor%} {%else%}
             <div id='no-search-results'>No documents match your search terms. Try another search.</div>
             {%endif%}
             </div>
-
             </div>
+
 
   <div id='new-search-loading' class='hidden'>Loading New Search Results ... </div>
 </body>
