@@ -14,11 +14,16 @@
 
     <div class="container">
         <a href="/"> Back to Search </a>
-        <p>Number of Redactions: {{data['result_text'] | length}}</p>
+        <p>Number of Versions: {{data['result_text'] | length}}</p>
 
 
             {%if data['result_text'] %}
            {% for redact in data['result_text']%}
+           <div class="panel panel-default">
+           <div class="panel-heading">
+            <h3 class="panel-title">{{data['doc_id']}} version {{loop.index}}</h3>
+            </div>
+            <div class="panel-body">
            <div class="row">
            <div class="col-sm-6">
                 <h1>Original</h1>
@@ -38,7 +43,10 @@
           <div class="row"><pre id="display-{{loop.index0}}"></pre></div>
           </div>
           </div>
+          </div>
+          </div>
           {%endfor%}
+
           {%else%}
           <h2> No Valid Redactions Found</h2>
           {%endif%}
