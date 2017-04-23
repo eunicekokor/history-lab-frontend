@@ -1,53 +1,79 @@
-<!DOCTYPE html>
 <html>
 
 <head>
     <title>Viewing Doc {{data['doc_id']}}</title>
-    <link rel='stylesheet' type='text/css' href="static/css/fabric.css" />
-    <link rel='stylesheet' type='text/css' href="static/css/style.css" />
+    <link rel='stylesheet' type='text/css' href="/static/css/fabric.css" />
+    <link rel='stylesheet' type='text/css' href="/static/css/style.css" />
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link href='http://fonts.googleapis.com/css?family=Lato&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script type="text/javascript" src="static/node_modules/diff/dist/diff.min.js"></script>
+    <script type="text/javascript" src="/static/node_modules/diff/dist/diff.min.js"></script>
 </head>
 
 <body>
-    <a href="/"> Back to Search </a>
-    <div class="row">
-        <div class="col-sm-3">
-            <h1>Original Text</h1>
-            <small><a target="_blank" href="/files/documents/{{data['original_text']['doc_id']}}.nofoot.txt">view raw</a></small> {% for line in data['original_text']['arr'] %}
-            <p>{{line}}</p>
-            {%endfor%}
-        </div>
-        {% for redact in data['result_text']%}
-        <div class="col-sm-3">
-            <h1> Redacted </h1>
-            <small><a target="_blank" href="/files/documents/{{redact['doc_id']}}.nofoot.txt">view raw</a></small> {%for line in redact['arr']%}
-            <p>{{line}}</p>
-            {% endfor %}
-        </div>
-        {% endfor %}
+
+    <div class="container">
+        <a href="/"> Back to Search </a>
+        <p>Number of Redactions: {{data['result_text'] | length}}</p>
+
+
+            {%if data['result_text'] %}
+           {% for redact in data['result_text']%}
+           <div class="row">
+           <div class="col-sm-6">
+                <h1>Original</h1>
+                <small><a target="_blank" href="/files/documents/{{data['original_text']['doc_id']}}.nofoot.txt">view raw</a></small> {% for line in data['original_text']['arr'] %}
+                <p>{{line}}</p>
+                {%endfor%}
+            </div>
+   <!--        <div class="col-sm-3">
+                <h1> Redacted </h1>
+                <small><a target="_blank" href="/files/documents/{{redact['doc_id']}}.nofoot.txt">view raw</a></small> {%for line in redact['arr']%}
+                <p>{{line}}</p>
+                {% endfor %}
+            </div> -->
+          <div class="col-sm-6">
+          <h1>Diff </h1>
+          <small><a target="_blank" href="/files/documents/{{redact['doc_id']}}.nofoot.txt">view raw</a></small>
+          <div class="row"><pre id="display-{{loop.index0}}"></pre></div>
+          </div>
+          </div>
+          {%endfor%}
+          {%else%}
+          <h2> No Valid Redactions Found</h2>
+          {%endif%}
+
+
+
     </div>
 </body>
 
 </html>
 <script type="text/javascript">
-require('colors')
-var jsdiff = require('diff');
+{% for redact in data['result_text']%}
+var index = parseInt({{loop.index0}});
+var obj_arr = {{data['result_text'] | tojson}};
+var one = "" + String({{data['original_text']['blob'] |tojson}}),
+    other = "" + obj_arr[index]['blob'],
+    color = '',
+    span = null;
 
-var one = 'beep boop';
-var other = 'beep boob blah';
-
-var diff = jsdiff.diffChars(one, other);
+var diff = JsDiff.diffTrimmedLines(one, other),
+    display = document.getElementById('display-{{loop.index0}}'),
+    fragment = document.createDocumentFragment();
 
 diff.forEach(function(part) {
     // green for additions, red for deletions
     // grey for common parts
-    var color = part.added ? 'green' :
+    color = part.added ? 'green' :
         part.removed ? 'red' : 'grey';
-    process.stderr.write(part.value[color]);
+    span = document.createElement('span');
+    span.style.color = color;
+    span.appendChild(document
+        .createTextNode(part.value));
+    fragment.appendChild(span);
 });
 
-console.log(diff);
+display.appendChild(fragment);
+{% endfor %}
 </script>

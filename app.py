@@ -93,10 +93,13 @@ def view(doc_id):
   redactSource = json.loads(redact)
   sourceRedact = json.loads(redact)
 
+  results = []
   if doc_id in redactSource.keys():
+    print "found in redactSource"
     results = redactSource[doc_id]
 
   if doc_id in sourceRedact.keys():
+    print "found in sourceRedact"
     results = sourceRedact[doc_id]
 
   results = list(set(results))
