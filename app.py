@@ -145,7 +145,16 @@ def getPerson(doc_id):
 
 def getDate(doc_id):
   data = open('data/doc_filters/date.json').read()
-  return load_match(doc_id, data)
+  date_list = load_match(doc_id, data)
+  dates = ['january', 'february', 'march', 'april','may','june','july','august','september','october','november','december']
+  results = []
+  for date in date_list:
+    for d in date.split(' '):
+      if d in dates:
+        results.append(date)
+
+  return results
+
 
 def load_match(doc_id, data):
   jsonData = json.loads(data)
