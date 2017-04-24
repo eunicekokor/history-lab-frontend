@@ -3,58 +3,61 @@
 
 <head>
     <title>Viewing Doc {{ doc_id }}</title>
-    <link rel='stylesheet' type='text/css' href="static/css/fabric.css" />
-    <link rel='stylesheet' type='text/css' href="static/css/style.css" />
+    <link rel='stylesheet' type='text/css' href="{{ url_for('static', filename='css/fabric.css')"/>
+    <link rel='stylesheet' type='text/css' href="{{ url_for('static', filename='css/style.css')"/>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link href='http://fonts.googleapis.com/css?family=Lato&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/diff.min.js') }}"></script>
 </head>
 
 <body>
-    <a href="/"> Back to Search </a>
-    <div class="row">
-        <div class="col-sm-3">
-            <h1>Original Text</h1>
-            <small>
-                <a target="_blank" href="/files/documents/{{ original['doc_id'] }}.nofoot.txt">view raw</a>
-            </small>
-            <div></div>
-            {{ original["text"] }}
+    <div class="container">
+        <a href="/"> Back to Search </a>
+        <p>Number of Versions: {{ result_textht | length }}</p>
+        <div class="row">
+            <div class="col-sm-3">
+                <h1>Original Text</h1>
+                <small>
+                    <a target="_blank" href="/files/documents/{{ original['doc_id'] }}.nofoot.txt">view raw</a>
+                </small>
+                <div></div>
+                {{ original["text"] }}
+            </div>
+            {% for redact in result_text %}
+            <div class="col-sm-3">
+                <h1> Redacted </h1>
+                <small>
+                    <a target="_blank" href="/files/documents/{{ redact['id'] }}.nofoot.txt">view raw</a>
+                </small>
+                <div></div>
+                <div class="row"><pre id="display-{{loop.index0}}"></pre></div>
+            </div>
+            {% endfor %}
         </div>
-        {% for redact in result_text%}
-        <div class="col-sm-3">
-            <h1> Redacted </h1>
-            <small>
-                <a target="_blank" href="/files/documents/{{redact['id']}}.nofoot.txt">view raw</a>
-            </small>
-            <div></div>
-            {{ redact["text"] }}
-        </div>
-        {% endfor %}
     </div>
 </body>
 
 </html>
 <script type="text/javascript">
-var one = 'beep boop',
-    other = 'beep boob blah',
-    color = '',
-    span = null;
+    const original = {{ original_text['text'] }};
+    const diffs = {{ result_text | safe }};
 
-var diff = JsDiff.diffChars(one, other),
-    display = document.getElementById('display'),
-    fragment = document.createDocumentFragment();
+    diffs.forEach((res, i) => {
+        const other = res.text;
 
-diff.forEach(function(part){
-  // green for additions, red for deletions
-  // grey for common parts
-  color = part.added ? 'green' :
-    part.removed ? 'red' : 'grey';
-  span = document.createElement('span');
-  span.style.color = color;
-  span.appendChild(document
-    .createTextNode(part.value));
-  fragment.appendChild(span);
-});
+        const diff = JsDiff.diffTrimmedLines(original, other);
+        const display = document.getElementById('display-${i}');
+        const fragment = document.createDocumentFragment();
+
+        diff.forEach(part => {
+            const color = part.added ? 'green' : part.removed ? 'red' : 'grey';
+            const span = document.createElement('span');
+
+            span.style.color = color;
+
+            span.appendChild(document.createTextNode(part.value));
+            fragment.appendChild(span);
+            display.appendChild(fragment);
+        });
+    });
 </script>

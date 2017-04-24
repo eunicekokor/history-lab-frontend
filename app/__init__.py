@@ -31,9 +31,8 @@ with open('data/doc_filters/countries.json') as countries_file, \
 
 def search_doc_by_id(doc_id):
 	print doc_id
-
-	resp = requests.get(ELASTIC_URL + "/_search?q=id:{0}".format(doc_id)).json()
-
+	resp = requests.get(ELASTIC_URL + "/{0}".format(doc_id)).json()
+	print resp
 	return resp["hits"]["hits"][0]["_source"]
 
 

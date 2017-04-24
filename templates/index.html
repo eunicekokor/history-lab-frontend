@@ -1,0 +1,284 @@
+<html>
+
+<head>
+    <title> Redactions API Viewer</title>
+    <link rel='stylesheet' type='text/css' href="static/css/fabric.css" />
+    <link rel='stylesheet' type='text/css' href="static/css/style.css" />
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <link href='http://fonts.googleapis.com/css?family=Lato&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript" src="static/node_modules/diff/dist/diff.min.js"></script>
+    <script>
+    // Set up binding to
+    $(document).scroll(function() {
+        var y = $(this).scrollTop();
+        if (y > 40) {
+            $('header').addClass('header-scrolled-down');
+        } else {
+            $('header').removeClass('header-scrolled-down');
+        }
+    });
+    </script>
+</head>
+
+<body>
+    <div type="text/x-handlebars" id="search-tool-template">
+        <h2 class='tools-heading cf' id='tools-heading-search'>
+    <div class='tools-heading-icon'></div>
+    <div  class='tools-heading-text'> Document Explorer <div class='beta-badge'>beta</div></div>
+  </h2>
+  <div class="row">
+  <div class="col-sm-6">
+        <form action="/" method="POST">
+            <div id='search-tool-collections' class='search-tool-group'>
+                <label class='group-heading'>Collections</label>
+                <div class='search-tool-collections-toggle'>
+                    <label>
+                        <input type='checkbox' checked id='filter-collection-frus' collection-id='frus' class='collection-select' /> Foreign Relations of the United States (FRUS)</label>
+                </div>
+                <div class='search-tool-collections-toggle'>
+                    <label>
+                        <input type='checkbox' checked id='filter-collection-kissinger' collection-id='kissinger' class='collection-select' /> Kissinger Telephone Conversations</label>
+                </div>
+                <div class='search-tool-collections-toggle'>
+                    <label>
+                        <input type='checkbox' checked id='filter-collection-statedeptcables' collection-id='statedeptcables' class='collection-select' /> State Department Cables</label>
+                </div>
+                <div class='search-tool-collections-toggle'>
+                    <label>
+                        <input type='checkbox' checked id='filter-collection-ddrs' collection-id='ddrs' class='collection-select' /> US Declassified Documents Online (DDO)</label>
+                </div>
+                <div class='search-tool-collections-toggle'>
+                    <label>
+                        <input type='checkbox' checked id='filter-collection-clinton' collection-id='clinton' class='collection-select' /> Clinton Collection</label>
+                </div>
+                <div class='search-tool-collections-toggle'>
+                    <label>
+                        <input type='checkbox' checked id='filter-collection-redactions' collection-id='redaction' class='collection-select' /> Redacted Documents</label>
+                </div>
+            </div>
+            <div id='search-tool-dates' class='search-tool-group'>
+                <div class='search-tool-dates-item'>
+                    <label class='group-heading'>From</label>
+                    <select id="start-month" name="start-month" class='start-date-component date-select'>
+                        <option value="01">January</option>
+                        <option value="02">February</option>
+                        <option value="03">March</option>
+                        <option value="04">April</option>
+                        <option value="05">May</option>
+                        <option value="06">June</option>
+                        <option value="07">July</option>
+                        <option value="08">August</option>
+                        <option value="09">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
+                    <select id="start-day" name="start-day" class='start-date-component date-select'>
+                        <option value="01" selected>1</option>
+                        <option value="02">2</option>
+                        <option value="03">3</option>
+                        <option value="04">4</option>
+                        <option value="05">5</option>
+                        <option value="06">6</option>
+                        <option value="07">7</option>
+                        <option value="08">8</option>
+                        <option value="09">9</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                        <option value="12">12</option>
+                        <option value="13">13</option>
+                        <option value="14">14</option>
+                        <option value="15">15</option>
+                        <option value="16">16</option>
+                        <option value="17">17</option>
+                        <option value="18">18</option>
+                        <option value="19">19</option>
+                        <option value="20">20</option>
+                        <option value="21">21</option>
+                        <option value="22">22</option>
+                        <option value="23">23</option>
+                        <option value="24">24</option>
+                        <option value="25">25</option>
+                        <option value="26">26</option>
+                        <option value="27">27</option>
+                        <option value="28">28</option>
+                        <option value="29">29</option>
+                        <option value="30">30</option>
+                        <option value="31">31</option>
+                    </select>
+                    <select id="start-year" name="start-year" class='start-date-component date-component-year date-select'>
+                        {% for year in data['yearsList'] %} {% if year == data['start-year'] %}
+                        <option id="{{year}}" selected>
+                            {{year}}
+                        </option>
+                        {%else%}
+                        <option id="{{year}}">
+                            {{year}}
+                        </option> {%endif%} {%endfor%}
+                    </select>
+                </div>
+                <div class='search-tool-dates-item'>
+                    <label class='group-heading'>Until</label>
+                    <select id="end-month" name="end-month" class='date-select'>
+                        <option value="01" selected>January</option>
+                        <option value="02">February</option>
+                        <option value="03">March</option>
+                        <option value="04">April</option>
+                        <option value="05">May</option>
+                        <option value="06">June</option>
+                        <option value="07">July</option>
+                        <option value="08">August</option>
+                        <option value="09">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
+                    <select id="end-day" name="end-day" class='date-select'>
+                        <option value="01" selected>1</option>
+                        <option value="02">2</option>
+                        <option value="03">3</option>
+                        <option value="04">4</option>
+                        <option value="05">5</option>
+                        <option value="06">6</option>
+                        <option value="07">7</option>
+                        <option value="08">8</option>
+                        <option value="09">9</option>
+                        <option value="10">10</option>
+                        <option value="11">11</option>
+                        <option value="12">12</option>
+                        <option value="13">13</option>
+                        <option value="14">14</option>
+                        <option value="15">15</option>
+                        <option value="16">16</option>
+                        <option value="17">17</option>
+                        <option value="18">18</option>
+                        <option value="19">19</option>
+                        <option value="20">20</option>
+                        <option value="21">21</option>
+                        <option value="22">22</option>
+                        <option value="23">23</option>
+                        <option value="24">24</option>
+                        <option value="25">25</option>
+                        <option value="26">26</option>
+                        <option value="27">27</option>
+                        <option value="28">28</option>
+                        <option value="29">29</option>
+                        <option value="30">30</option>
+                        <option value="31">31</option>
+                    </select>
+                    <select id="end-year" name="end-year" class='date-component-year date-select'>
+                        {% for year in data['yearsList'] %} {% if year == data['end-year'] %}
+                        <option id="{{year}}" selected>
+                            {{year}}
+                        </option>
+                        {%else%}
+                        <option id="{{year}}">
+                            {{year}}
+                        </option>
+                        {%endif%} {%endfor%}
+                    </select>
+                </div>
+            </div>
+            <div id='search-tool-collections' class='search-tool-group'>
+                <label class='group-heading'>Classifications</label>
+                <table class='search-classification-table'>
+                    <tr>
+                        <td>
+                            <div class='search-tool-classifications-toggle'>
+                                <label>
+                                    <input type='checkbox' checked id='filter-classification-1' classification-id='1' class='classification-select' /> Secret</label>
+                            </div>
+                        </td>
+                        <td>
+                            <div class='search-tool-classifications-toggle'>
+                                <label>
+                                    <input type='checkbox' checked id='filter-classification-2' classification-id='2' class='classification-select' /> Confidential</label>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class='search-tool-classifications-toggle'>
+                                <label>
+                                    <input type='checkbox' checked id='filter-classification-3' classification-id='3' class='classification-select' /> Top Secret</label>
+                            </div>
+                        </td>
+                        <td>
+                            <div class='search-tool-classifications-toggle'>
+                                <label>
+                                    <input type='checkbox' checked id='filter-classification-5' classification-id='5' class='classification-select' /> Unclassified</label>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class='search-tool-classifications-toggle'>
+                                <label>
+                                    <input type='checkbox' checked id='filter-classification-limited-7' classification-id='7' class='classification-select' /> Limited Official Use</label>
+                            </div>
+                        </td>
+                        <td></td>
+                    </tr>
+                </table>
+            </div>
+            <div class='search-tool-group'>
+                Country Search
+                <select name="countrySelect">
+                    <option id="all">all</option>
+                    {% for country in data['countryList'] %} {% if country == data['countrySelected'] %}
+                    <option id="{{country}}" selected>
+                        {{country}}
+                    </option>
+                    {%else%}
+                    <option id="{{country}}">
+                        {{country}}
+                    </option>
+                    {%endif%} {%endfor%}
+                </select>
+            </div>
+            <button id='submit-search-button' class='button button-submit'>
+                Search Collections
+            </button>
+            </form>
+        </form>
+        {#
+        <div type="text/x-handlebars" id="search-results-template">
+            <h1>Document Results </h1><span id="search-results-info-matches"></span>
+            <div id='search-results-info' class='hidden'>
+            </div>
+            <div id='document-list'>
+                <div id='no-search-results' class='hidden'>
+                    No documents match your search terms. Try another search.
+                </div>
+            </div>
+            <div id='search-results-loading' class='hidden'>
+            </div>
+            <div id='new-search-loading' class='hidden'>Loading New Search Results ... </div>
+            <div id='search-pagination' class='hidden'>
+            </div>
+        </div>#}
+
+<div class="col-sm-3">
+<h1>Document Results </h1>
+  {% if data['results'] %}
+    {%for res in data['results']%}
+            <div class='search-result-item'>
+                <h2><a href="/view/{{res}}">{{res}}</a></h2>
+                <div class='search-result-item-attributes-group'>
+                <div class='search-result-item-attribute'>
+                <label class='standard-label'>RAW FILE:</label>
+                <a target="_blank" href="files/documents/{{res}}.nofoot.txt">{{res}}.nofoot.txt</a>
+                </div>
+                </div>
+            </div>
+                {%endfor%} {%else%}
+            <div id='no-search-results'>No documents match your search terms. Try another search.</div>
+            {%endif%}
+            </div>
+
+            </div>
+
+  <div id='new-search-loading' class='hidden'>Loading New Search Results ... </div>
+</body>
