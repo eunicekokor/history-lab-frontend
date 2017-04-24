@@ -197,7 +197,7 @@
         </div>
     #}
     </div>
-    <div class="col-sm-8">
+    <div class="col-sm-3">
         <h2> Document Results</h2>
         {% if data['result'] %}
             {% for res in data['result'] %}
@@ -205,8 +205,11 @@
                     <h2><a href="/view/{{res}}">{{ res }}</a></h2>
                     <div class='search-result-item-attributes-group'>
                         <div class='search-result-item-attribute'>
-                            <label class='standard-label'>RAW FILE:</label>
-                            <a target="_blank" href="files/documents/{{res}}.nofoot.txt">{{ res }}.nofoot.txt</a>
+                            <label class='standard-label'>
+                                <a href="/view_raw/{{ res }}">
+                                    VIEW RAW
+                                </a>
+                            </label>
                         </div>
                     </div>
                 </div>

@@ -11,41 +11,96 @@
 </head>
 
 <body>
-    <div class="container">
-        <a href="/"> Back to Search </a>
-        <p>Number of Versions: {{ result_text | length }}</p>
-
-        <div class="col-sm-3">
-            <h1>Original Text</h1>
-            <small>
-                <a target="_blank" href="/files/documents/{{ original['doc_id'] }}.nofoot.txt">view raw</a>
-            </small>
-            <div></div>
-            {{ original["text"] }}
+    <div class="document-show-sidebar">
+        <div class="sidebar-item">
+            <label class="sidebar-label"> <a href="/"> Back to Search </a></label>
         </div>
-        {% for redact in result_text %}
-        <div class="col-sm-3">
-            <h1> Redacted </h1>
-            <small>
-                <a target="_blank" href="/files/documents/{{ redact['id'] }}.nofoot.txt">view raw</a>
-            </small>
-            <div class="row">
-                <pre id="display-{{loop.index0}}"></pre>
-            </div>
+        <div class="sidebar-item">
+            <label class="sidebar-label">Versions</label> {{ result_texts | length }}
         </div>
-        {% endfor %}
+        <div class="sidebar-item">
+            <label class="sidebar-label">Locations</label>
+            {% if locations|length > 0 %}
+                {% for d in locations %}
+                    {{ d }} {% if not loop.last %} , {% endif %}
+                {% endfor %}
+            {% else %}
+                none
+            {%endif%}
+        </div>
+        <div class="sidebar-item">
+            <label class="sidebar-label">Organizations</label>
+            {% if orgs|length > 0 %}
+                {% for d in orgs %}
+                    {{ d }} {% if not loop.last %} , {% endif %}
+                {% endfor %}
+            {% else %}
+                none
+            {% endif %}
+        </div>
+        <div class="sidebar-item">
+            <label class="sidebar-label">People</label>
+                {%if people|length > 0 %}
+                    {% for d in people %}
+                        {{ d }} {% if not loop.last %} , {% endif %}
+                    {% endfor %}
+                {% else %}
+                    none
+                {% endif %}</div>
+        <div class="sidebar-item">
+            <label class="sidebar-label">Dates</label>
+            {% if dates %}
+                {% for d in dates %}
+                    {{ d }}<br>
+                {% endfor %}
+            {% else %}
+                none
+            {% endif %}
+        </div>
+    </div>
+    <div class="document-show-container">
+        {% if result_ids|length > 0 %}
+            {% for res_id in result_ids %}
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h3 class="panel-title">{{ doc_id }} version {{ loop.index }}</h3>
+                    </div>
+                    <div class="panel-body">
+                        <div class="row">
+                            <div class="col-sm-1"></div>
+                            <div class="col-sm-3">
+                              <h1>Original</h1>
+                                <small>
+                                  <a target="_blank" href="/view_raw/{{ original['doc_id'] }}">view raw</a>
+                                </small>
+                                <div></div>
+                                {{ original_text|safe }}
+                            </div>
+                                <div class="col-sm-3">
+                                  <h1>Diff {{ res_id }}</h1>
+                                  <small>
+                                    <a target="_blank" href="/view_raw/{{ res_id }}">view raw</a>
+                                  </small>
+                                  <div class="row"><pre id="display-{{loop.index0}}"></pre></div>
+                                </div>
+                        </div>
+                    </div>
+                </div>
+            {%endfor%}
+        {% else %}
+            <h2> No Valid Redactions Found</h2>
+        {% endif %}
     </div>
 </body>
 
 </html>
 <script type="text/javascript">
-    const original = `{{ original['text'] | safe }}`;
-    const diffs = {{ result_text | safe }};
+    const original = `{{ original["text"]|safe }}`;
+    const diffs = {{ result_texts | safe }};
 
     diffs.forEach((res, i) => {
-        const other = res;
 
-        const diff = JsDiff.diffTrimmedLines(original, other);
+        const diff = JsDiff.diffTrimmedLines(original, res);
         const display = document.getElementById(`display-${i}`);
         const fragment = document.createDocumentFragment();
 

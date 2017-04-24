@@ -14,9 +14,9 @@
   <div class="document-show-sidebar">
   <div class="sidebar-item"><label class="sidebar-label"> <a href="/"> Back to Search </a></label> </div>
   <div class="sidebar-item"><label class="sidebar-label">Versions</label> {{data['result_text'] | length}} </div>
-  <div class="sidebar-item"><label class="sidebar-label">Locations</label> {%if data['locations']%} {%for d in data['locations']%} {{d}} {% endfor %} {% else %}none{%endif%}</div>
-  <div class="sidebar-item"><label class="sidebar-label">Organizations</label> {%if data['orgs']%} {%for d in data['orgs']%} {{d}} {% endfor %} {% else %}none{%endif%}</div>
-  <div class="sidebar-item"><label class="sidebar-label">People</label> {%if data['people']%} {%for d in data['people']%} {{d}} {% endfor %} {% else %}none{%endif%}</div>
+  <div class="sidebar-item"><label class="sidebar-label">Locations</label> {%if data['locations']%} {%for d in data['locations']%} {%if loop.last %} {{d}} {%else %} {{d}}, {%endif%} {% endfor %} {% else %}none{%endif%}</div>
+  <div class="sidebar-item"><label class="sidebar-label">Organizations</label> {%if data['orgs']%} {%for d in data['orgs']%} {%if loop.last %} {{d}} {%else %} {{d}}, {%endif%}{% endfor %} {% else %}none{%endif%}</div>
+  <div class="sidebar-item"><label class="sidebar-label">People</label> {%if data['people']%} {%for d in data['people']%} {%if loop.last %} {{d}} {%else %} {{d}}, {%endif%} {% endfor %} {% else %}none{%endif%}</div>
   <div class="sidebar-item"><label class="sidebar-label">Dates</label> {%if data['dates']%} {%for d in data['dates']%} {{d}}<br> {% endfor %} {% else %}none{%endif%}</div>
 
 
