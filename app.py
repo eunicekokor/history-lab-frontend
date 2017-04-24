@@ -112,13 +112,16 @@ def view(doc_id):
 
   # # for each doc id, read the text file
   data = {
-  "doc_id": str(doc_id),
+  "doc_id": doc_id,
   "result_text": result_text,
-  "original_text": original_text
+  "original_text": original_text,
+  "locations": getLocations(doc_id),
+  "orgs": getOrganizations(doc_id),
+  "people": getPerson(doc_id),
+  "dates": getDate(doc_id)
   }
-  # print data['result_text']
-  # data = "data"
-  # print getText("205403")
+  # print data['dates']
+
   return render_template("docviewer.html", data=data)
 
 def getText(doc_id):
@@ -128,11 +131,31 @@ def getText(doc_id):
   text_blob = " ".join(text)
   return {"arr": text_arr, "blob": text_blob, "doc_id": doc_id}
 
-def getLocation(doc_id):
-  data = open('data/doc_filters/location.json')
+def getLocations(doc_id):
+  data=open('data/doc_filters/location.json').read()
+  return load_match(doc_id, data)
+
+def getOrganizations(doc_id):
+  data = open('data/doc_filters/organization.json').read()
+  return load_match(doc_id, data)
+
+def getPerson(doc_id):
+  data = open('data/doc_filters/person.json').read()
+  return load_match(doc_id, data)
+
+def getDate(doc_id):
+  data = open('data/doc_filters/date.json').read()
+  return load_match(doc_id, data)
+
+def load_match(doc_id, data):
   jsonData = json.loads(data)
 
-
+  results = []
+  for k,vals in jsonData.iteritems():
+    for val in vals:
+      if val == doc_id:
+        results.append(k)
+  return results
 
 if __name__ == "__main__":
     app.debug = True
