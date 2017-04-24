@@ -63,25 +63,37 @@
             {% for res_id in result_ids %}
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        <h3 class="panel-title">{{ doc_id }} version {{ loop.index }}</h3>
+                        <h3 class="panel-title">
+                            {{ doc_id }} version {{ loop.index }}
+                        </h3>
                     </div>
                     <div class="panel-body">
                         <div class="row">
                             <div class="col-sm-1"></div>
                             <div class="col-sm-3">
-                              <h1>Original</h1>
-                                <small>
-                                  <a target="_blank" href="/view_raw/{{ original['doc_id'] }}">view raw</a>
-                                </small>
+                                <h1>
+                                    {% if is_redact %}
+                                        Redacted
+                                    {% else %}
+                                        Original
+                                    {% endif %}
+                                </h1>
+                                <a target="_blank" href="/view_raw/{{ original['doc_id'] }}">view raw</a>
                                 <div></div>
                                 {{ original_text|safe }}
                             </div>
                                 <div class="col-sm-3">
-                                  <h1>Diff {{ res_id }}</h1>
-                                  <small>
-                                    <a target="_blank" href="/view_raw/{{ res_id }}">view raw</a>
-                                  </small>
-                                  <div class="row"><pre id="display-{{loop.index0}}"></pre></div>
+                                    <h1>
+                                        {% if is_redact %}
+                                            Original
+                                        {% else %}
+                                            Redacted
+                                        {% endif %}
+                                        :
+                                        <a target="_blank" href="/view/{{ res_id }}">{{ res_id }}</a>
+                                    </h1>
+                                    <a target="_blank" href="/view_raw/{{ res_id }}">VIEW RAW</a>
+                                    <div class="row"><pre id="display-{{loop.index0}}"></pre></div>
                                 </div>
                         </div>
                     </div>

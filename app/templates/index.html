@@ -2,16 +2,16 @@
 
 <head>
     <title> Redactions API Viewer</title>
-    <link rel='stylesheet' type='text/css' href="static/css/fabric.css" />
-    <link rel='stylesheet' type='text/css' href="static/css/style.css" />
+    <link rel='stylesheet' type='text/css' href="{{ url_for('static', filename='css/fabric.css') }}" />
+    <link rel='stylesheet' type='text/css' href="{{ url_for('static', filename='css/style.css') }}" />
     <link href='http://fonts.googleapis.com/css?family=Lato&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-    <script type="text/javascript" src="static/node_modules/diff/dist/diff.min.js"></script>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <script>
     // Set up binding to
     $(document).scroll(function() {
-        var y = $(this).scrollTop();
+        const y = $(this).scrollTop();
+
         if (y > 40) {
             $('header').addClass('header-scrolled-down');
         } else {
