@@ -107,6 +107,8 @@ def format_date(dates):
 	results = [date for date in dates if len(
 		set(date.split(" ")).intersection(MONTHS)) > 0]
 
+def htmlify(text):
+	return text.replace("\n", "<br>")
 
 @app.route("/view/<int:doc_id>", methods=["GET", "POST"])
 def view(doc_id):
@@ -116,33 +118,38 @@ def view(doc_id):
 	doc_id = str(doc_id)
 
 	is_redact = doc_id in red_src_data.keys()
-
 	result = red_src_data[doc_id] if is_redact else src_red_data[doc_id]
-	result_texts = [format_res(res) for res in result]
 
-	original = search_doc_by_id(doc_id)
+	try:
+		original = search_doc_by_id(doc_id)
 
-	entities = original["entityMap"]
+		entities = original["entityMap"]
 
-	locations = entities.get("LOCATION", []) + get_country_by_id(doc_id)
-	dates = format_date(entities.get("DATE", []) + get_year_by_id(doc_id))
+		locations = entities.get("LOCATION", []) + get_country_by_id(doc_id)
+		dates = format_date(entities.get("DATE", []) + get_year_by_id(doc_id))
 
-	return render_template("docviewer.html", doc_id=doc_id,
-						   is_redact=is_redact,
-						   original=original,
-						   original_text=original[
-							   "text"].replace("\n", "<br>"),
-						   result_ids=result,
-						   result_texts=result_texts,
-						   locations=set(locations),
-						   orgs=entities.get("ORGANIZATION", []),
-						   people=entities.get("PERSON", []),
-						   dates=dates
-						   )
+		result_texts = [format_res(res) for res in result]
+
+		return render_template("docviewer.html", doc_id=doc_id,
+							   is_redact=is_redact,
+							   original=original,
+							   original_text=htmlify(original["text"]),
+							   result_ids=result,
+							   result_texts=result_texts,
+							   locations=set(locations),
+							   orgs=entities.get("ORGANIZATION", []),
+							   people=entities.get("PERSON", []),
+							   dates=dates
+							   )
+	except:
+		return abort(404)
 
 
 @app.route("/view_raw/<int:doc_id>")
 def view_rat(doc_id):
-	original = search_doc_by_id(doc_id)
+	try:
+		original = search_doc_by_id(doc_id)
 
-	return original["text"].replace("\n", "<br>")
+		return htmlify(original["text"])
+	except:
+		return abort(404)
