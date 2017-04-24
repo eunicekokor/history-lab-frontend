@@ -85,6 +85,10 @@ def hello_world():
     # print(data['taiwan'])
     return render_template("index.html", data=data)
 
+@app.route('/search/<query>', methods=["GET", "POST"])
+def search(query):
+  return query
+
 @app.route('/view/<doc_id>', methods=["GET", "POST"])
 def view(doc_id):
   doc_id = str(doc_id)
