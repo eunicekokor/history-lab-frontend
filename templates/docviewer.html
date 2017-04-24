@@ -11,12 +11,19 @@
 </head>
 
 <body>
+  <div class="document-show-sidebar">
+  <div class="sidebar-item"><label class="sidebar-label"> <a href="/"> Back to Search </a></label> </div>
+  <div class="sidebar-item"><label class="sidebar-label">Versions</label> {{data['result_text'] | length}} </div>
+  <div class="sidebar-item"><label class="sidebar-label">Locations</label> {%if data['locations']%} {%for d in data['locations']%} {{d}} {% endfor %} {% else %}none{%endif%}</div>
+  <div class="sidebar-item"><label class="sidebar-label">Organizations</label> {%if data['orgs']%} {%for d in data['orgs']%} {{d}} {% endfor %} {% else %}none{%endif%}</div>
+  <div class="sidebar-item"><label class="sidebar-label">People</label> {%if data['people']%} {%for d in data['people']%} {{d}} {% endfor %} {% else %}none{%endif%}</div>
+  <div class="sidebar-item"><label class="sidebar-label">Dates</label> {%if data['dates']%} {%for d in data['dates']%} {{d}}<br> {% endfor %} {% else %}none{%endif%}</div>
 
-    <div class="container">
-        <a href="/"> Back to Search </a>
-        <p>Number of Versions: {{data['result_text'] | length}}</p>
 
+  </div>
+    <div class="document-show-container">
 
+<<<<<<< HEAD
           {%if data['result_text'] %}
               {% for redact in data['result_text']%}
               <div class="panel panel-default">
@@ -45,6 +52,41 @@
                 </div>
               </div>
               {%endfor%}
+=======
+
+           {%if data['result_text'] %}
+           {% for redact in data['result_text']%}
+           <div class="panel panel-default">
+           <div class="panel-heading">
+            <h3 class="panel-title">{{data['doc_id']}} version {{loop.index}}</h3>
+
+            </div>
+            <div class="panel-body ">
+           <div class="row">
+
+           <div class="col-sm-4">
+                <h1>Original</h1>
+                <small><a target="_blank" href="/files/documents/{{data['original_text']['doc_id']}}.nofoot.txt">view raw</a></small> {% for line in data['original_text']['arr'] %}
+                <p>{{line}}</p>
+                {%endfor%}
+            </div>
+   <!--        <div class="col-sm-3">
+                <h1> Redacted </h1>
+                <small><a target="_blank" href="/files/documents/{{redact['doc_id']}}.nofoot.txt">view raw</a></small> {%for line in redact['arr']%}
+                <p>{{line}}</p>
+                {% endfor %}
+            </div> -->
+          <div class="col-sm-4">
+          <h1>Diff </h1>
+          <small><a target="_blank" href="/files/documents/{{redact['doc_id']}}.nofoot.txt">view raw</a></small>
+          <div class="row"><pre id="display-{{loop.index0}}"></pre></div>
+          </div>
+          </div>
+          </div>
+          </div>
+          {%endfor%}
+
+>>>>>>> 8018911a0a17e1503a6189a7d2718b7c4eef23f5
           {%else%}
             <h2> No Valid Redactions Found</h2>
           {%endif%}

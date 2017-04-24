@@ -14,12 +14,21 @@ DEFAULT_END = 1864
 with open('data/doc_filters/countries.json') as countries_file, \
         open('data/doc_filters/years.json') as years_file, \
         open('data/doc_filters/redactionToSource.json') as red_file, \
-        open('data/doc_filters/sourceToRedaction.json') as src_file:
+        open('data/doc_filters/sourceToRedaction.json') as src_file, \
+		open('data/doc_filters/location.json') as loc_file, \
+		open('data/doc_filters/organization.json') as org_file, \
+		open('data/doc_filters/person.json') as people_file, \
+		open('data/doc_filters/date.json') as date_file:
 
     countries_data = json.loads(countries_file.read())
     years_data = json.loads(years_file.read())
     red_src_data = json.loads(red_file.read())
     src_red_data = json.loads(src_file.read())
+
+    loc_data = json.loads(loc_file.read())
+    org_data = json.loads(org_file.read())
+    people_data = json.loads(people_file.read())
+    date_data = json.loads(date_file.read())
 
     country_list = sorted([x[0].upper() + x[1:]
                            for x in countries_data.keys()])
@@ -28,17 +37,29 @@ with open('data/doc_filters/countries.json') as countries_file, \
     years_list = sorted([int(x) for x in years_data.keys()])
     years_count = {year: len(docs) for year, docs in years_data.iteritems()}
 
+def get_year_by_id(doc_id):
+	return load_match(doc_id, years_data.iteritems())
+
+
+def get_country_by_id(doc_id):
+	return load_match(doc_id, countries_data.iteritems())
+
+
+def load_match(doc_id, data):
+	results = [k for k, vals in data if doc_id in vals]
+
+	return results
+
 
 def search_doc_by_id(doc_id):
-	print doc_id
-	resp = requests.get(ELASTIC_URL + "/{0}".format(doc_id)).json()
-	print resp
+	resp = requests.get(
+	    ELASTIC_URL + "/_search?q=docId:{0}".format(doc_id)).json()
+
 	return resp["hits"]["hits"][0]["_source"]
 
 
 @app.route('/files/<path:path>', methods=["GET"])
 def send_files(path):
-    # files/documents/{{doc_id}}.nofoot.txt
     return send_from_directory('data', path)
 
 
@@ -85,11 +106,21 @@ def view(doc_id):
     is_redact = doc_id in red_src_data.keys()
 
     results = red_src_data[doc_id] if is_redact else src_red_data[doc_id]
-    result_text = [search_doc_by_id(res) for res in results]
+    result_text = ["`{0}`".format(search_doc_by_id(res)["text"]) for res in results]
 
     original = search_doc_by_id(doc_id)
 
+    entities = original["entityMap"]
+
+    locations = entities.get("LOCATION", []) + get_country_by_id(doc_id)
+    dates = entities.get("DATE", []) + get_year_by_id(doc_id)
+    print dates
     return render_template("docviewer.html", doc_id=doc_id,
                            is_redact=is_redact,
                            original=original,
-                           result_text=result_text)
+                           result_text=result_text,
+                           locations=locations,
+                           orgs=entities.get("ORGANIZATION", []),
+                           people=entities.get("PERSON", []),
+                           dates=dates
+                           )

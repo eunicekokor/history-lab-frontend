@@ -3,8 +3,8 @@
 
 <head>
     <title>Viewing Doc {{ doc_id }}</title>
-    <link rel='stylesheet' type='text/css' href="{{ url_for('static', filename='css/fabric.css')"/>
-    <link rel='stylesheet' type='text/css' href="{{ url_for('static', filename='css/style.css')"/>
+    <link rel='stylesheet' type='text/css' href="{{ url_for('static', filename='css/fabric.css') }}"/>
+    <link rel='stylesheet' type='text/css' href="{{ url_for('static', filename='css/style.css') }} "/>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link href='http://fonts.googleapis.com/css?family=Lato&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
     <script type="text/javascript" src="{{ url_for('static', filename='js/diff.min.js') }}"></script>
@@ -13,40 +13,40 @@
 <body>
     <div class="container">
         <a href="/"> Back to Search </a>
-        <p>Number of Versions: {{ result_textht | length }}</p>
-        <div class="row">
-            <div class="col-sm-3">
-                <h1>Original Text</h1>
-                <small>
-                    <a target="_blank" href="/files/documents/{{ original['doc_id'] }}.nofoot.txt">view raw</a>
-                </small>
-                <div></div>
-                {{ original["text"] }}
-            </div>
-            {% for redact in result_text %}
-            <div class="col-sm-3">
-                <h1> Redacted </h1>
-                <small>
-                    <a target="_blank" href="/files/documents/{{ redact['id'] }}.nofoot.txt">view raw</a>
-                </small>
-                <div></div>
-                <div class="row"><pre id="display-{{loop.index0}}"></pre></div>
-            </div>
-            {% endfor %}
+        <p>Number of Versions: {{ result_text | length }}</p>
+
+        <div class="col-sm-3">
+            <h1>Original Text</h1>
+            <small>
+                <a target="_blank" href="/files/documents/{{ original['doc_id'] }}.nofoot.txt">view raw</a>
+            </small>
+            <div></div>
+            {{ original["text"] }}
         </div>
+        {% for redact in result_text %}
+        <div class="col-sm-3">
+            <h1> Redacted </h1>
+            <small>
+                <a target="_blank" href="/files/documents/{{ redact['id'] }}.nofoot.txt">view raw</a>
+            </small>
+            <div class="row">
+                <pre id="display-{{loop.index0}}"></pre>
+            </div>
+        </div>
+        {% endfor %}
     </div>
 </body>
 
 </html>
 <script type="text/javascript">
-    const original = {{ original_text['text'] }};
+    const original = `{{ original['text'] | safe }}`;
     const diffs = {{ result_text | safe }};
 
     diffs.forEach((res, i) => {
-        const other = res.text;
+        const other = res;
 
         const diff = JsDiff.diffTrimmedLines(original, other);
-        const display = document.getElementById('display-${i}');
+        const display = document.getElementById(`display-${i}`);
         const fragment = document.createDocumentFragment();
 
         diff.forEach(part => {

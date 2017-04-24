@@ -7,6 +7,7 @@
     <link href='http://fonts.googleapis.com/css?family=Lato&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script type="text/javascript" src="static/node_modules/diff/dist/diff.min.js"></script>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <script>
     // Set up binding to
     $(document).scroll(function() {
@@ -21,163 +22,164 @@
 </head>
 
 <body>
-    <div type="text/x-handlebars" id="search-tool-template">
-        <h2 class='tools-heading cf' id='tools-heading-search'>
-            <div class='tools-heading-icon'></div>
-            <div class='tools-heading-text'>Document Explorer
-                <div class='beta-badge'>
-                    beta
+    <div class="col-sm-4">
+        <div type="text/x-handlebars" id="search-tool-template">
+            <h2 class='tools-heading cf' id='tools-heading-search'>
+                <div class='tools-heading-icon'></div>
+                <div class='tools-heading-text'>Document Explorer
+                    <div class='beta-badge'>
+                        beta
+                    </div>
+                </div>
+            </h2>
+        </div>
+        <form action="/" method="POST">
+            <div id='search-tool-collections' class='search-tool-group'>
+                <label class='group-heading'>Collections</label>
+                <div class='search-tool-collections-toggle'>
+                    <label>
+                        <input type='checkbox' checked id='filter-collection-frus' collection-id='frus' class='collection-select'/> Foreign Relations of the United States (FRUS)</label>
+                </div>
+                <div class='search-tool-collections-toggle'>
+                    <label>
+                        <input type='checkbox' checked id='filter-collection-kissinger' collection-id='kissinger' class='collection-select'/> Kissinger Telephone Conversations</label>
+                </div>
+                <div class='search-tool-collections-toggle'>
+                    <label>
+                        <input type='checkbox' checked id='filter-collection-statedeptcables' collection-id='statedeptcables' class='collection-select'/> State Department Cables</label>
+                </div>
+                <div class='search-tool-collections-toggle'>
+                    <label>
+                        <input type='checkbox' checked id='filter-collection-ddrs' collection-id='ddrs' class='collection-select'/> US Declassified Documents Online (DDO)</label>
+                </div>
+                <div class='search-tool-collections-toggle'>
+                    <label>
+                        <input type='checkbox' checked id='filter-collection-clinton' collection-id='clinton' class='collection-select'/> Clinton Collection</label>
+                </div>
+                <div class='search-tool-collections-toggle'>
+                    <label>
+                        <input type='checkbox' checked id='filter-collection-redactions' collection-id='redaction' class='collection-select'/> Redacted Documents</label>
                 </div>
             </div>
-        </h2>
-    </div>
-    <form action="/" method="POST">
-        <div id='search-tool-collections' class='search-tool-group'>
-            <label class='group-heading'>Collections</label>
-            <div class='search-tool-collections-toggle'>
-                <label>
-                    <input type='checkbox' checked id='filter-collection-frus' collection-id='frus' class='collection-select'/> Foreign Relations of the United States (FRUS)</label>
+            <div id='search-tool-dates' class='search-tool-group'>
+                <div class='search-tool-dates-item'>
+                    <label class='group-heading'>From</label>
+                    <select id="start-month" name="start-month" class='start-date-component date-select'>
+                        <option value="01">January</option>
+                        <option value="02">February</option>
+                        <option value="03">March</option>
+                        <option value="04">April</option>
+                        <option value="05">May</option>
+                        <option value="06">June</option>
+                        <option value="07">July</option>
+                        <option value="08">August</option>
+                        <option value="09">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
+                    <select id="start-day" name="start-day" class='start-date-component date-select'>
+                        <option value="01" selected>1</option>
+                        {% for i in range(2, 32) %}
+                            <option value="0{{ i }}">{{ i }}</option>
+                        {% endfor %}
+                    </select>
+                    <select id="start-year" name="start-year" class='start-date-component date-component-year date-select'>
+                        {% for year in data['years_list'] %}
+                            <option id="{{ year }}" {% if year == data['start-year'] %} selected {% endif %}>
+                                {{ year }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class='search-tool-dates-item'>
+                    <label class='group-heading'>Until</label>
+                    <select id="end-month" name="end-month" class='date-select'>
+                        <option value="01" selected>January</option>
+                        <option value="02">February</option>
+                        <option value="03">March</option>
+                        <option value="04">April</option>
+                        <option value="05">May</option>
+                        <option value="06">June</option>
+                        <option value="07">July</option>
+                        <option value="08">August</option>
+                        <option value="09">September</option>
+                        <option value="10">October</option>
+                        <option value="11">November</option>
+                        <option value="12">December</option>
+                    </select>
+                    <select id="end-day" name="end-day" class='date-select'>
+                        <option value="01" selected>1</option>
+                        {% for i in range(2, 32) %}
+                            <option value="0{{ i }}">{{ i }}</option>
+                        {% endfor %}
+                    </select>
+                    <select id="end-year" name="end-year" class='date-component-year date-select'>
+                        {% for year in data['years_list'] %}
+                            <option id="{{year}}" {% if year == data['end-year'] %} selected {% endif %}>
+                                {{ year }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
             </div>
-            <div class='search-tool-collections-toggle'>
-                <label>
-                    <input type='checkbox' checked id='filter-collection-kissinger' collection-id='kissinger' class='collection-select'/> Kissinger Telephone Conversations</label>
+            <div id='search-tool-collections' class='search-tool-group'>
+                <label class='group-heading'>Classifications</label>
+                <table class='search-classification-table'>
+                    <tr>
+                        <td>
+                            <div class='search-tool-classifications-toggle'>
+                                <label>
+                                    <input type='checkbox' checked id='filter-classification-1' classification-id='1' class='classification-select' /> Secret</label>
+                            </div>
+                        </td>
+                        <td>
+                            <div class='search-tool-classifications-toggle'>
+                                <label>
+                                    <input type='checkbox' checked id='filter-classification-2' classification-id='2' class='classification-select' /> Confidential</label>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class='search-tool-classifications-toggle'>
+                                <label>
+                                    <input type='checkbox' checked id='filter-classification-3' classification-id='3' class='classification-select' /> Top Secret</label>
+                            </div>
+                        </td>
+                        <td>
+                            <div class='search-tool-classifications-toggle'>
+                                <label>
+                                    <input type='checkbox' checked id='filter-classification-5' classification-id='5' class='classification-select' /> Unclassified</label>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <div class='search-tool-classifications-toggle'>
+                                <label>
+                                    <input type='checkbox' checked id='filter-classification-limited-7' classification-id='7' class='classification-select' /> Limited Official Use</label>
+                            </div>
+                        </td>
+                        <td></td>
+                    </tr>
+                </table>
             </div>
-            <div class='search-tool-collections-toggle'>
-                <label>
-                    <input type='checkbox' checked id='filter-collection-statedeptcables' collection-id='statedeptcables' class='collection-select'/> State Department Cables</label>
-            </div>
-            <div class='search-tool-collections-toggle'>
-                <label>
-                    <input type='checkbox' checked id='filter-collection-ddrs' collection-id='ddrs' class='collection-select'/> US Declassified Documents Online (DDO)</label>
-            </div>
-            <div class='search-tool-collections-toggle'>
-                <label>
-                    <input type='checkbox' checked id='filter-collection-clinton' collection-id='clinton' class='collection-select'/> Clinton Collection</label>
-            </div>
-            <div class='search-tool-collections-toggle'>
-                <label>
-                    <input type='checkbox' checked id='filter-collection-redactions' collection-id='redaction' class='collection-select'/> Redacted Documents</label>
-            </div>
-        </div>
-        <div id='search-tool-dates' class='search-tool-group'>
-            <div class='search-tool-dates-item'>
-                <label class='group-heading'>From</label>
-                <select id="start-month" name="start-month" class='start-date-component date-select'>
-                    <option value="01">January</option>
-                    <option value="02">February</option>
-                    <option value="03">March</option>
-                    <option value="04">April</option>
-                    <option value="05">May</option>
-                    <option value="06">June</option>
-                    <option value="07">July</option>
-                    <option value="08">August</option>
-                    <option value="09">September</option>
-                    <option value="10">October</option>
-                    <option value="11">November</option>
-                    <option value="12">December</option>
-                </select>
-                <select id="start-day" name="start-day" class='start-date-component date-select'>
-                    <option value="01" selected>1</option>
-                    {% for i in range(2, 32) %}
-                        <option value="0{{ i }}">{{ i }}</option>
-                    {% endfor %}
-                </select>
-                <select id="start-year" name="start-year" class='start-date-component date-component-year date-select'>
-                    {% for year in data['years_list'] %}
-                        <option id="{{ year }}" {% if year == data['start-year'] %} selected {% endif %}>
-                            {{ year }}
+            <div class='search-tool-group'>
+                Country Search
+                <select name="countrySelect">
+                    <option id="all">all</option>
+                    {% for country in data['country_list'] %}
+                        <option id="{{ country }}" {% if country == data['countrySelected'] %} selected {% endif %}>
+                            {{ country }}
                         </option>
                     {% endfor %}
                 </select>
             </div>
-            <div class='search-tool-dates-item'>
-                <label class='group-heading'>Until</label>
-                <select id="end-month" name="end-month" class='date-select'>
-                    <option value="01" selected>January</option>
-                    <option value="02">February</option>
-                    <option value="03">March</option>
-                    <option value="04">April</option>
-                    <option value="05">May</option>
-                    <option value="06">June</option>
-                    <option value="07">July</option>
-                    <option value="08">August</option>
-                    <option value="09">September</option>
-                    <option value="10">October</option>
-                    <option value="11">November</option>
-                    <option value="12">December</option>
-                </select>
-                <select id="end-day" name="end-day" class='date-select'>
-                    <option value="01" selected>1</option>
-                    {% for i in range(2, 32) %}
-                        <option value="0{{ i }}">{{ i }}</option>
-                    {% endfor %}
-                </select>
-                <select id="end-year" name="end-year" class='date-component-year date-select'>
-                    {% for year in data['years_list'] %}
-                        <option id="{{year}}" {% if year == data['end-year'] %} selected {% endif %}>
-                            {{ year }}
-                        </option>
-                    {% endfor %}
-                </select>
-            </div>
-        </div>
-        <div id='search-tool-collections' class='search-tool-group'>
-            <label class='group-heading'>Classifications</label>
-            <table class='search-classification-table'>
-                <tr>
-                    <td>
-                        <div class='search-tool-classifications-toggle'>
-                            <label>
-                                <input type='checkbox' checked id='filter-classification-1' classification-id='1' class='classification-select' /> Secret</label>
-                        </div>
-                    </td>
-                    <td>
-                        <div class='search-tool-classifications-toggle'>
-                            <label>
-                                <input type='checkbox' checked id='filter-classification-2' classification-id='2' class='classification-select' /> Confidential</label>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class='search-tool-classifications-toggle'>
-                            <label>
-                                <input type='checkbox' checked id='filter-classification-3' classification-id='3' class='classification-select' /> Top Secret</label>
-                        </div>
-                    </td>
-                    <td>
-                        <div class='search-tool-classifications-toggle'>
-                            <label>
-                                <input type='checkbox' checked id='filter-classification-5' classification-id='5' class='classification-select' /> Unclassified</label>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class='search-tool-classifications-toggle'>
-                            <label>
-                                <input type='checkbox' checked id='filter-classification-limited-7' classification-id='7' class='classification-select' /> Limited Official Use</label>
-                        </div>
-                    </td>
-                    <td></td>
-                </tr>
-            </table>
-        </div>
-        <div class='search-tool-group'>
-            Country Search
-            <select name="countrySelect">
-                <option id="all">all</option>
-                {% for country in data['country_list'] %}
-                    <option id="{{ country }}" {% if country == data['countrySelected'] %} selected {% endif %}>
-                        {{ country }}
-                    </option>
-                {% endfor %}
-            </select>
-        </div>
-        <button id='submit-search-button' class='button button-submit'>
-            Search Collections
-        </button>
-    </form>
+            <button id='submit-search-button' class='button button-submit'>
+                Search Collections
+            </button>
+        </form>
     {#
         <div type="text/x-handlebars" id="search-results-template">
             <h1>Document Results</h1>
@@ -194,7 +196,8 @@
             </div>
         </div>
     #}
-    <div class="col-sm-3">
+    </div>
+    <div class="col-sm-8">
         <h2> Document Results</h2>
         {% if data['result'] %}
             {% for res in data['result'] %}
