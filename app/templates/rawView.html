@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Viewing Doc {{ doc_id }}</title>
+    <link rel='stylesheet' type='text/css' href="{{ url_for('static', filename='css/fabric.css') }}"/>
+    <link rel='stylesheet' type='text/css' href="{{ url_for('static', filename='css/style.css') }}"/>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link href='http://fonts.googleapis.com/css?family=Lato&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.8.0/bootstrap-slider.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.8.0/css/bootstrap-slider.min.css">
+    <script type="text/javascript" src="{{ url_for('static', filename='js/diff.min.js') }}"></script>
+
+    <style>
+        body {
+            font-family: "Times New Roman", Times, serif;
+            letter-spacing: 2px;
+        }
+
+        .carousel-control.left, .carousel-control.right {
+            padding: 20%;
+            background-image: none;
+            width: 5%;
+        }
+
+        .glyphicon-chevron-left, .glyphicon-chevron-right {
+            color:  black;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="panel panel-default">
+        <div class="doc-diff-area">
+            <div class="col-sm-2"></div>
+            <div class="col-sm-8 diff-component">
+                <div>
+                    <div class="row text-center">
+                        <h2>
+                            Document {{ doc_id }}
+                        </h2>
+                        <div class="col-sm-5"></div>
+                    </div>
+                    <div></div>
+                    <div id="myCarousel" class="carousel slide" data-ride="carousel" data-interval="false">
+                      <div class="carousel-inner" role="listbox" style="width: 48%; margin-left:26%;">
+                        {% for image in images %}
+                            <div class="item text-center {% if loop.index == 1%} active {% endif %}">
+                                <h3>Page: {{ loop.index }}</h3>
+                                <img class="d-block img-fluid" src="{{ url_for('static', filename=image) }}">
+                            </div>
+                        {% endfor %}
+                      </div>
+                      <a class="left carousel-control" href="#myCarousel" data-slide="prev">
+                        <span class="glyphicon glyphicon-chevron-left"></span>
+                        <span class="sr-only">Previous</span>
+                      </a>
+                      <a class="right carousel-control" href="#myCarousel" data-slide="next">
+                        <span class="glyphicon glyphicon-chevron-right"></span>
+                        <span class="sr-only">Next</span>
+                      </a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-sm-1"></div>
+        </div>
+    </div>
+</body>
+</html>

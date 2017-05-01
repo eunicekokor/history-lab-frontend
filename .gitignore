@@ -1,3 +1,4 @@
 *.pyc
 data/documents
 env/
+app/static/images

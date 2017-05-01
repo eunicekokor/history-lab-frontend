@@ -7,18 +7,17 @@
     <link href='http://fonts.googleapis.com/css?family=Lato&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-    <script>
-    // Set up binding to
-    $(document).scroll(function() {
-        const y = $(this).scrollTop();
-
-        if (y > 40) {
-            $('header').addClass('header-scrolled-down');
-        } else {
-            $('header').removeClass('header-scrolled-down');
+    <style>
+        .list-group {
+            height: 65%;
+            overflow-y: scroll;
         }
-    });
-    </script>
+
+        .pagitaion-button {
+            width: 45px;
+            text-align: center;
+        }
+    </style>
 </head>
 
 <body>
@@ -86,7 +85,7 @@
                     </select>
                     <select id="start-year" name="start-year" class='start-date-component date-component-year date-select'>
                         {% for year in data['years_list'] %}
-                            <option id="{{ year }}" {% if year == data['start-year'] %} selected {% endif %}>
+                            <option id="{{ year }}" {% if year == data['start_year'] %} selected {% endif %}>
                                 {{ year }}
                             </option>
                         {% endfor %}
@@ -116,7 +115,7 @@
                     </select>
                     <select id="end-year" name="end-year" class='date-component-year date-select'>
                         {% for year in data['years_list'] %}
-                            <option id="{{year}}" {% if year == data['end-year'] %} selected {% endif %}>
+                            <option id="{{year}}" {% if year == data['end_year'] %} selected {% endif %}>
                                 {{ year }}
                             </option>
                         {% endfor %}
@@ -167,11 +166,11 @@
             </div>
             <div class='search-tool-group'>
                 Country Search
-                <select name="countrySelect">
+                <select name="country-select">
                     <option id="all">all</option>
                     {% for country in data['country_list'] %}
-                        <option id="{{ country }}" {% if country == data['countrySelected'] %} selected {% endif %}>
-                            {{ country }}
+                        <option id="{{ country }}" {% if country == data['country_selected'] %} selected {% endif %}>
+                            {{ country.title() }}
                         </option>
                     {% endfor %}
                 </select>
@@ -197,26 +196,121 @@
         </div>
     #}
     </div>
-    <div class="col-sm-3">
+    <div class="col-sm-6">
         <h2> Document Results</h2>
         {% if data['result'] %}
-            {% for res in data['result'] %}
-                 <div class='search-result-item'>
-                    <h2><a href="/view/{{res}}">{{ res }}</a></h2>
-                    <div class='search-result-item-attributes-group'>
-                        <div class='search-result-item-attribute'>
-                            <label class='standard-label'>
-                                <a href="/view_raw/{{ res }}">
-                                    VIEW RAW
-                                </a>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-            {% endfor %}
+            <h3>Number of documents: {{ data['result'] | length }}</h3>
+            <h4>Documents per page: 50</h4>
+            <div id="results-view-anchor"></div>
         {% else %}
-            <div>No documents match your search terms. Try another search.</div>
+            <div>Search for documents</div>
         {% endif %}
     </div>
     <div id='new-search-loading' class='hidden'>Loading New Search Results ... </div>
+<script>
+    $(document).scroll(function() {
+        const y = $(this).scrollTop();
+
+        if (y > 40) {
+            $('header').addClass('header-scrolled-down');
+        } else {
+            $('header').removeClass('header-scrolled-down');
+        }
+    });
+
+    const RESULTS_PER_PAGE = 50;
+
+    const resultAnchor = document.getElementById("results-view-anchor");
+
+    const searchResult = {{ data['result'] | safe }};
+    const numPages = Math.floor(searchResult.length / RESULTS_PER_PAGE) + 1;
+
+    const paginationItems = [...Array(numPages).keys()].map(page => {
+        const paginationMenuItem = document.createElement("li");
+
+        paginationMenuItem.innerHTML = `<a href="#" class="pagitaion-button" data-page="${page}"">${page + 1}</a>`;
+
+        return paginationMenuItem;
+    })
+
+    const paginate = page => {
+        paginationItems.filter((_, i) => i !== page).forEach(pageItem => {
+            pageItem.className = pageItem.className.replace("active", "");
+        });
+
+        if (!paginationItems[page].className.endsWith("active")) {
+            paginationItems[page].className += " active";
+        }
+
+        const resultList = document.createElement("ul");
+
+        const startIndex = page * RESULTS_PER_PAGE;
+        const endIndex = startIndex + RESULTS_PER_PAGE;
+
+        resultList.className = "list-group"
+
+        const listNodes = searchResult.slice(startIndex, endIndex).map(resId => {
+            const listNode = document.createElement("li");
+            const listInner = document.createElement("div");
+            const resLink = document.createElement("a");
+            const viewRawOuter = document.createElement("div");
+            const viewRawInner = document.createElement("label");
+
+            listNode.className = "list-group-item";
+            listInner.className = "search-result-item-attributes-group"
+
+            resLink.href = `/view/${resId}`;
+            resLink.innerHTML = `<h4>${resId}</h4>`;
+
+            viewRawOuter.className = "search-result-item-attribute";
+            viewRawInner.className = "standard-label";
+
+            viewRawInner.innerHTML = `<a href="/raw/${resId}">VIEW RAW</a>`
+
+            viewRawOuter.appendChild(viewRawInner);
+
+            listInner.appendChild(resLink);
+            listInner.appendChild(viewRawOuter);
+
+            listNode.appendChild(listInner);
+
+            return listNode;
+        });
+
+        listNodes.forEach(node => resultList.appendChild(node));
+
+        resultAnchor.prepend(resultList);
+
+        resultAnchor.dataset.currentPage = page;
+    }
+
+    if (numPages > 1) {
+        paginationItems.forEach(item => {
+            item.addEventListener("click", e => {
+                const targetPage = e.target.dataset.page;
+
+                if (resultAnchor.dataset.currentPage !== targetPage) {
+                    resultAnchor.removeChild(resultAnchor.firstChild);
+
+                    paginate(targetPage);
+                }
+            });
+        })
+
+        const paginationArea = document.createElement("div");
+        paginationArea.className = "text-center";
+
+        const paginationList = paginationItems.reduce((acc, item) => {
+            acc.appendChild(item);
+
+            return acc;
+        }, document.createElement("ul"));
+
+        paginationList.className = "pagination";
+
+        paginationArea.appendChild(paginationList);
+        resultAnchor.appendChild(paginationArea);
+    }
+    paginate(0);
+</script>
 </body>
