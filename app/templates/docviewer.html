@@ -4,35 +4,216 @@
 <head>
     <title>Viewing Doc {{ doc_id }}</title>
     <link rel='stylesheet' type='text/css' href="{{ url_for('static', filename='css/fabric.css') }}"/>
-    <link rel='stylesheet' type='text/css' href="{{ url_for('static', filename='css/style.css') }} "/>
+    <link rel='stylesheet' type='text/css' href="{{ url_for('static', filename='css/style.css') }}"/>
     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link href='http://fonts.googleapis.com/css?family=Lato&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/diff.min.js') }}"></script>
-</head>
 
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.8.0/bootstrap-slider.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-slider/9.8.0/css/bootstrap-slider.min.css">
+    <script type="text/javascript" src="{{ url_for('static', filename='js/diff.min.js') }}"></script>
+
+    <style>
+        body {
+            font-family: "Times New Roman", Times, serif;
+            letter-spacing: 2px;
+        }
+
+        .doc-title-area {
+            height: 80px;
+            overflow-y: scroll;
+        }
+
+        .document-show-container {
+            padding: 0;
+        }
+        .carousel-indicators {
+            margin-bottom: 0;
+        }
+
+        .carousel-content {
+            color:black;
+            display:flex;
+            position: static;
+            align-items:center;
+            background-color: #EFEFEF;
+            padding: 50px;
+        }
+
+        .carousel-content-text {
+            padding: 0 10%;
+            width: 100%;
+            height: 650px;
+            overflow-y: scroll;
+        }
+
+        .carousel-control.left, .carousel-control.right {
+            background-image: none;
+            width: 5%;
+        }
+
+        .glyphicon-chevron-left, .glyphicon-chevron-right {
+            color:  black;
+        }
+
+        .redact-title {
+            font-size: 36px;
+            float: left;
+        }
+
+        .show-raw {
+            font-size: 20px;
+        }
+
+        .btn-group {
+            margin-top: 20px;
+        }
+
+        .diff-selector {
+            height: 39px !important;
+        }
+
+        .diff-selector.active{
+            outline: none !important;
+        }
+
+        .document {
+            font-size: 15px;
+        }
+
+        .carousel-indicator {
+            margin: 0 3px !important;
+        }
+
+        ol#diff-shortcut {
+            height: 750px;
+            overflow-y: scroll;
+        }
+
+        .diff-shortcut-number {
+            cursor: pointer;
+        }
+
+        #ex1Slider .slider-selection {
+            background: #BABABA;
+        }
+
+        i.glyphicon {
+            font-size: 20px;
+            padding-right: 5px;
+        }
+    </style>
+</head>
 <body>
-    <div class="document-show-sidebar">
+    <div class="document-show-container col-sm-10">
+        {% if result_pages|length > 0 %}
+            <div class="panel panel-default">
+                <div class="panel-heading doc-title-area">
+                    <h3 style="text-align: center;">
+                        <b>{{ title }}</b>
+                    </h3>
+                </div>
+                <div class="doc-diff-area">
+                    <div class="col-sm-1"></div>
+                    <div class="col-sm-6 diff-component">
+                        <div class="row">
+                            <div>
+                                <div class="row">
+                                    <h1 class="col-sm-6">
+                                        {% if is_redact %}
+                                            Redaction
+                                        {% else %}
+                                            Original
+                                        {% endif %}
+                                        <small><a href="/raw/{{ doc_id }}">view raw</a></small>
+                                    </h1>
+                                    <div class="col-sm-5"></div>
+                                    <div class="btn-group pull-right">
+                                        {% for res_id in result_pages.keys()[::-1][::-1] %}
+                                            <button type="button" class="btn btn-default diff-selector"  {% if loop.index == 1 %} autofocus="true" {% endif %} data-id="{{ res_id }}">
+                                                {{ res_id }}
+                                            </button>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <div></div>
+                                <div id="carousel-anchor" class="row">
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-1"></div>
+                    <div class="col-sm-3 diff-component">
+                        <div class="row">
+                        </div>
+                        <div class="row">
+                            <h3>Diff shortcuts</h3>
+                        </div>
+                        <div class="row">
+                            set length:
+                                <input id="diff-len-slider" type="range" data-slider-min="5" data-slider-max="30" data-slider-step="1" data-slider-value="10"/>
+
+                        </div>
+                        <div class="row" id="diff-shortcut-anchor"></div>
+                        </div>
+                </div>
+            </div>
+        {% else %}
+            <h2> No Valid Redactions Found</h2>
+        {% endif %}
+    </div>
+    <div class="document-show-sidebar col-sm-2">
         <div class="sidebar-item">
             <label class="sidebar-label"> <a href="/"> Back to Search </a></label>
         </div>
         <div class="sidebar-item">
-            <label class="sidebar-label">Versions</label> {{ result_texts | length }}
+            <label class="sidebar-label">Num. Versions</label> <span>{{ result_pages | length }}</span>
+        </div>
+        <div class="sidebar-item">
+            <label class="sidebar-label">Year Written</label>
+            <span>
+                <a href="/w_year/{{ year_written }}">{{ year_written }}</a>
+            </span>
+        </div>
+        <div class="sidebar-item">
+            <label class="sidebar-label">Year Published</label>
+            <span>
+                <a href="/p_year/{{ year_published }}">{{ year_published }}</a>
+            </span>
+        </div>
+        <div class="sidebar-item">
+            <label class="sidebar-label">
+                {% if is_redact %}
+                    Originals
+                {% else %}
+                    Redactions
+                {% endif %}
+            </label>
+            {% if result_pages|length > 0 %}
+                {% for res_id in result_pages.keys()[::-1] %}
+                    <a href="/view/{{ res_id }}">{{ res_id }}</a>{% if not loop.last %}, {% endif %}
+                {% endfor %}
+            {% else %}
+                none
+            {% endif %}
         </div>
         <div class="sidebar-item">
             <label class="sidebar-label">Locations</label>
             {% if locations|length > 0 %}
-                {% for d in locations %}
-                    {{ d }} {% if not loop.last %} , {% endif %}
+                {% for loc in locations %}
+                    <a href="/location/{{ loc }}">{{ loc.title() }}</a>{% if not loop.last %}, {% endif %}
                 {% endfor %}
             {% else %}
                 none
-            {%endif%}
+            {% endif %}
         </div>
         <div class="sidebar-item">
             <label class="sidebar-label">Organizations</label>
             {% if orgs|length > 0 %}
-                {% for d in orgs %}
-                    {{ d }} {% if not loop.last %} , {% endif %}
+                {% for org in orgs %}
+                    <a href="/org/{{ org }}">{{ org.upper() }}</a>{% if not loop.last %}, {% endif %}
                 {% endfor %}
             {% else %}
                 none
@@ -40,91 +221,30 @@
         </div>
         <div class="sidebar-item">
             <label class="sidebar-label">People</label>
-                {%if people|length > 0 %}
-                    {% for d in people %}
-                        {{ d }} {% if not loop.last %} , {% endif %}
-                    {% endfor %}
-                {% else %}
-                    none
-                {% endif %}</div>
+            {%if people|length > 0 %}
+                {% for p in people %}
+                    <a href="/person/{{ p }}">{{ p.title() }}</a>{% if not loop.last %}, {% endif %}
+                {% endfor %}
+            {% else %}
+                none
+            {% endif %}
+        </div>
         <div class="sidebar-item">
             <label class="sidebar-label">Dates</label>
             {% if dates %}
                 {% for d in dates %}
-                    {{ d }}<br>
+                    <a href="/date/{{ d }}">{{ d.title() }}</a>{% if not loop.last %}, {% endif %}
                 {% endfor %}
             {% else %}
                 none
             {% endif %}
         </div>
     </div>
-    <div class="document-show-container">
-        {% if result_ids|length > 0 %}
-            {% for res_id in result_ids %}
-                <div class="panel panel-default">
-                    <div class="panel-heading">
-                        <h3 class="panel-title">
-                            {{ doc_id }} version {{ loop.index }}
-                        </h3>
-                    </div>
-                    <div class="panel-body">
-                        <div class="row">
-                            <div class="col-sm-1"></div>
-                            <div class="col-sm-3">
-                                <h1>
-                                    {% if is_redact %}
-                                        Redacted
-                                    {% else %}
-                                        Original
-                                    {% endif %}
-                                </h1>
-                                <a target="_blank" href="/view_raw/{{ original['doc_id'] }}">view raw</a>
-                                <div></div>
-                                {{ original_text|safe }}
-                            </div>
-                                <div class="col-sm-3">
-                                    <h1>
-                                        {% if is_redact %}
-                                            Original
-                                        {% else %}
-                                            Redacted
-                                        {% endif %}
-                                        :
-                                        <a target="_blank" href="/view/{{ res_id }}">{{ res_id }}</a>
-                                    </h1>
-                                    <a target="_blank" href="/view_raw/{{ res_id }}">VIEW RAW</a>
-                                    <div class="row"><pre id="display-{{loop.index0}}"></pre></div>
-                                </div>
-                        </div>
-                    </div>
-                </div>
-            {%endfor%}
-        {% else %}
-            <h2> No Valid Redactions Found</h2>
-        {% endif %}
-    </div>
+    <script type="text/javascript">
+        const orgPages = {{ original_pages | safe }};
+        const diffDocs = {{ result_pages | safe }};
+        const isRedacted = "{{ is_redact }}" === "True";
+    </script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/renderDiff.js') }}"></script>
 </body>
-
 </html>
-<script type="text/javascript">
-    const original = `{{ original["text"]|safe }}`;
-    const diffs = {{ result_texts | safe }};
-
-    diffs.forEach((res, i) => {
-
-        const diff = JsDiff.diffTrimmedLines(original, res);
-        const display = document.getElementById(`display-${i}`);
-        const fragment = document.createDocumentFragment();
-
-        diff.forEach(part => {
-            const color = part.added ? 'green' : part.removed ? 'red' : 'grey';
-            const span = document.createElement('span');
-
-            span.style.color = color;
-
-            span.appendChild(document.createTextNode(part.value));
-            fragment.appendChild(span);
-            display.appendChild(fragment);
-        });
-    });
-</script>
